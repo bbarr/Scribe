@@ -21,23 +21,45 @@ var Scribe = (function() {
 				sub = subs[i];
 				sub.call(sub.scope, data);
 			}
+
+			return this;
 		},
 
 		subscribe: funcion(str, fn, scope) {
-			
+
 			var event = this._parse_event_string(str),
 			    target = event.target,
 			    names = event.names,
-			    fns = target.subscriptions[name] || (target.subscriptions[name] = []);
-      
+			    len = names.length,
+			    i = 0, name, fns;
+
 			fn.scope = scope || this;
-			fns.push(fn);
+			for (; i < len; i++) {
+				name = names[i];
+				fns = target.subscriptions[name] || (target.subscriptions[name] = []);
+				fns.push(fn);
+			}
+			 
 			return this;
 
 		},
 
 		unsubscribe: function(str, fn) {
+			
+			var event = this._parse_event_string(str),
+			    target = event.target,
+			    names = event.names,
+			    len = names.length,
+			    i = 0, name, fns, index;
 
+			for (; i < len; i++) {
+				name = names[i];
+				fns = target.subscriptions[name] || (target.subscriptions[name] = []);
+				index = fns.indexOf(fn);
+				if (index > -1) fns.splice(index, 1);
+			}
+			 
+			return this;
 		},
 
 		_parse_event_string: function(str) {
